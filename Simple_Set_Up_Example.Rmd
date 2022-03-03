@@ -1,0 +1,158 @@
+---
+title: "MAT4376 Report"
+author: "Jiahui Dong, Qingyang Fu "
+date: "4/16/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(SOIL)
+library(caret)
+
+set.seed(111)
+
+par(mfrow=c(2,2))
+#n = 60, p = 10
+n1 = 60
+p = 10
+beta = c(4,4,4,-6*sqrt(2),4,0,0,0,0,0)
+b0 = 1
+x1 = matrix(rnorm(n1*p, 0, 1), nrow = n1, ncol = p)
+e1 = rnorm(n1)
+y1 = x1%*%beta + b0 + e1
+
+ARM1 <- SOIL(x1, y1, family = "gaussian", weight_type = "ARM", prior = TRUE)
+BIC1 <- SOIL(x1, y1, family = "gaussian", weight_type = "BIC")
+
+index1 = c(1:10)
+plot(index1,ARM1$importance, type = "o", col = "red",xlab = "Variable Index", ylab = "Importance",main = "n=60  p=10")
+lines(index1,BIC1$importance, type = "o", col = "blue" )
+legend(8.5, 0.9, legend=c("ARM", "BIC"),col=c("red", "blue"), lty=1:1, cex=0.5)
+
+#n = 60, p = 20
+n1 = 60
+p2 = 20
+beta2 = c(1,6,3,7,9,3,5,4,2,4,5,6,7,0,0,0,0,0,0,0)
+x2 = matrix(rnorm(n1*p2, 0, 1), nrow = n1, ncol = p2)
+e2 = rnorm(n1)
+y2 = x2%*%beta2 + b0 + e2
+
+ARM2 = SOIL(x2, y2, family = "gaussian", weight_type = "ARM", prior = TRUE)
+BIC2 <- SOIL(x2, y2, family = "gaussian", weight_type = "BIC")
+index2 = c(1:20)
+
+plot(index2,ARM2$importance, type = "o", col = "red",xlab = "Variable Index", ylab = "Importance",main = "n=60  p=20")
+lines(index2,BIC2$importance, type = "o", col = "blue" )
+legend(17, 0.9, legend=c("ARM", "BIC"),col=c("red", "blue"), lty=1:1, cex=0.5)
+
+#n = 500, p = 20
+n2 = 500
+x3 = matrix(rnorm(n2*p2, 0, 1), nrow = n2, ncol = p2)
+e3 = rnorm(n2)
+y3 = x3%*%beta2 + b0 +e3
+
+ARM3 <- SOIL(x3, y3, family = "gaussian", weight_type = "ARM", prior = TRUE)
+BIC3 <- SOIL(x3, y3, family = "gaussian", weight_type = "BIC")
+plot(index2,ARM3$importance, type = "o", col = "red" ,xlab = "Variable Index", ylab = "Importance",main = "n=500  p=20")
+lines(index2,BIC3$importance, type = "o", col = "blue" )
+legend(17, 0.9, legend=c("ARM", "BIC"),col=c("red", "blue"), lty=1:1, cex=0.5)
+
+#add a confuser
+x_2 = x1[,2]
+x_4 = x1[,4]
+e4 = rnorm(n1, 0, 0.01)
+x_11 = 0.5*x_2 +2*x_4 + e4
+x4 = cbind(x1,x_11)
+beta4 = c(4,4,4,-6*sqrt(2),4,0,0,0,0,0,0)
+y4 = x4%*%beta4 + b0 +e1
+index3 = c(1:11)
+ARM4 <- SOIL(x4, y4, family = "gaussian", weight_type = "ARM", prior = TRUE)
+BIC4 <- SOIL(x4, y4, family = "gaussian", weight_type = "BIC")
+plot(index3,ARM4$importance, type = "o", col = "red",xlab = "Variable Index", ylab = "Importance",main = "Confuser X11 added, n=60  p=11")
+lines(index3,BIC4$importance, type = "o", col = "blue" )
+legend(8.5, 0.9, legend=c("ARM", "BIC"),col=c("red", "blue"), lty=1:1, cex=0.5)
+```
+
+
+```{r}
+library(MASS)
+library(MixMatrix)
+library(SOIL)
+
+set.seed(101)
+beta = c(4,4,4,-6*sqrt(2),4,0,0,0,0,0)
+
+b0 = 1
+e1 = rnorm(60)
+
+
+par(mfrow=c(2,2))
+#sigma = 0.1, rho = 0
+sigma = 0.1
+Rho = CSgenerate(10, 0)
+Sigma = sigma*Rho
+X = mvrnorm(60, rep(0,10), Sigma)
+Y = X%*%beta + b0 + e1
+
+ARM <- SOIL(X, Y, family = "gaussian", weight_type = "ARM", prior = TRUE)
+BIC <- SOIL(X, Y, family = "gaussian", weight_type = "BIC")
+
+Variable_index = c(1:10)
+plot(Variable_index,ARM$importance, type = "o", col = "red", main = "Rho = 0, Sigma^2 = 0.01", xlab = "Variable Index", ylab = "Importance")
+lines(Variable_index,BIC$importance, type = "o", col = "blue" )
+legend(8.5, 0.9, legend=c("ARM", "BIC"),col=c("red", "blue"), lty=1:1, cex=0.5)
+
+#sigma = 5, rho = 0
+sigma1 = 5
+Rho = CSgenerate(10, 0)
+Sigma1 = sigma1*Rho
+X1 = mvrnorm(60, rep(0,10), Sigma1)
+Y1 = X1%*%beta + b0 + e1
+
+ARM1 <- SOIL(X1, Y1, family = "gaussian", weight_type = "ARM", prior = TRUE)
+BIC1 <- SOIL(X1, Y1, family = "gaussian", weight_type = "BIC")
+
+Variable_index = c(1:10)
+plot(Variable_index,ARM1$importance, type = "o", col = "red", main = "Rho = 0, Sigma^2 = 25", xlab = "Variable Index", ylab = "Importance")
+lines(Variable_index,BIC1$importance, type = "o", col = "blue" )
+legend(8.6, 0.9, legend=c("ARM", "BIC"),col=c("red", "blue"), lty=1:1, cex=0.5)
+
+#sigma = 0.1, rho = 0.9
+sigma = 0.1
+Rho1 = CSgenerate(10, 0.9)
+Sigma2 = sigma*Rho1
+X2 = mvrnorm(60, rep(0,10), Sigma2)
+Y2 = X2%*%beta + b0 + e1
+
+ARM2 <- SOIL(X2, Y2, family = "gaussian", weight_type = "ARM", prior = TRUE)
+BIC2 <- SOIL(X2, Y2, family = "gaussian", weight_type = "BIC")
+
+Variable_index = c(1:10)
+plot(Variable_index,ARM2$importance, type = "o", col = "red", main = "Rho = 0.9, Sigma^2 = 0.01", xlab = "Variable Index", ylab = "Importance")
+lines(Variable_index,BIC2$importance, type = "o", col = "blue" )
+legend(8.5, 0.9, legend=c("ARM", "BIC"),col=c("red", "blue"), lty=1:1, cex=0.5)
+
+#sigma = 5, rho = 0.9
+Rho1 = CSgenerate(10, 0.9)
+Sigma3 = sigma1*Rho1
+X3 = mvrnorm(60, rep(0,10), Sigma3)
+Y3 = X3%*%beta + b0 + e1
+
+ARM3 <- SOIL(X3, Y3, family = "gaussian", weight_type = "ARM", prior = TRUE)
+BIC3 <- SOIL(X3, Y3, family = "gaussian", weight_type = "BIC")
+
+Variable_index = c(1:10)
+plot(Variable_index,ARM3$importance, type = "o", col = "red", main = "Rho = 0.9, Sigma^2 = 25", xlab = "Variable Index", ylab = "Importance")
+lines(Variable_index,BIC3$importance, type = "o", col = "blue" )
+legend(8.5, 0.9, legend=c("ARM", "BIC"),col=c("red", "blue"), lty=1:1, cex=0.5)
+
+
+```
+
+
+
