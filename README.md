@@ -9,7 +9,6 @@ There are also available non-parametric methods, and the random forest is the on
 In the paper, the author proposed a new approach called SOIL, and it has some beneficial features or advantages which can improve the procedure of data analysis. SOIL involves many candidate models for consideration which makes it more objective and reliable. It could avoid bias by using independent external weighting. Moreover, the SOIL importance measure could be naturally used for finding the best model since more critical variables for sparse modeling will receive higher importance values. 
 
 All in all, SOIL could provide more information than the existed measures for data analysis and is helpful in different steps of the modeling procedure. Therefore, it could improve the reliability and reproducibility of data analysis when variable selection is needed.
-![image](https://user-images.githubusercontent.com/100692852/156515887-29cd603f-10c8-4069-a1e6-c6b99b2bc127.png)
 
 
 
